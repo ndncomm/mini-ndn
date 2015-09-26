@@ -65,7 +65,6 @@ from mininet.cli import CLI
 from mininet.link import TCLink
 from mininet.util import ipStr, ipParse
 
-
 from ndn import ExperimentManager
 from ndn.ndn_host import NdnHost, CpuLimitedNdnHost
 from ndn.conf_parser import parse_hosts, parse_links
@@ -120,7 +119,7 @@ def parse_args():
     help="Specify convergence time for the topology (Default 60 seconds)")
 
     parser.add_option("--hr", action="store_true", dest="hr",
-    help="--hr is used to turn on hyperbolic routing")
+    help="Turn on hyperbolic routing")
 
     parser.add_option("--faces", action="store", dest="faces", type="int",
     help="Specify number of faces 0-60")
@@ -166,20 +165,18 @@ class NdnTopo(Topo):
     def __init__(self, conf_arq, **opts):
         Topo.__init__(self, **opts)
 
-        global hosts_conf
-        global links_conf
-        hosts_conf = parse_hosts(conf_arq)
-        links_conf = parse_links(conf_arq)
+        self.hosts_conf = parse_hosts(conf_arq)
+        self.links_conf = parse_links(conf_arq)
 
         self.isTCLink = False
         self.isLimited = False
 
-        for host in hosts_conf:
+        for host in self.hosts_conf:
             if host.cpu != None and self.isLimited != True:
                 self.isLimited = True
             self.addHost(host.name, app=host.app, params=host.uri_tuples, cpu=host.cpu,cores=host.cores,cache=host.cache)
 
-        for link in links_conf:
+        for link in self.links_conf:
             if len(link.linkDict) == 0:
                 self.addLink(link.h1, link.h2)
             else:
@@ -191,7 +188,7 @@ class NdnTopo(Topo):
 def execute(template_file='minindn.conf', testbed=False, experimentName=None, nPings=None, ctime=None, hr=False, faces=3, isCliEnabled=True):
     "Create a network based on template_file"
 
-    install_dir='/usr/local/etc/mini-ndn/'
+    install_dir = '/usr/local/etc/mini-ndn/'
 
     if template_file == '':
         template_file = install_dir + 'default-topology.conf'
@@ -217,9 +214,7 @@ def execute(template_file='minindn.conf', testbed=False, experimentName=None, nP
         net = Mininet(topo,host=NdnHost)
 
     t2 = datetime.datetime.now()
-
     delta = t2 - t
-
     info('Setup time: ' + str(delta.seconds) + '\n')
 
     net.start()
@@ -246,13 +241,13 @@ def execute(template_file='minindn.conf', testbed=False, experimentName=None, nP
     for host in net.hosts:
         nodes += str(host.name) + ","
 
-        conf = next(x for x in hosts_conf if x.name == host.name)
+        conf = next(x for x in topo.hosts_conf if x.name == host.name)
         host.nlsrParameters = conf.nlsrParameters
 
         if faces is not None:
             host.nlsrParameters["max-faces-per-prefix"] = faces
 
-        if hr is True:
+        if hr:
             host.nlsrParameters["hyperbolic-state"] = "on"
 
         # Generate NLSR configuration file
@@ -292,16 +287,13 @@ def execute(template_file='minindn.conf', testbed=False, experimentName=None, nP
             print "ERROR: Experiment '%s' does not exist" % experimentName
             return
 
-    if isCliEnabled is True:
+    if isCliEnabled:
         CLI(net)
 
     net.stop()
 
+
 if __name__ == '__main__':
-
-    hosts_conf = []
-    links_conf = []
     template, testbed, experimentName, nPings, ctime, hr, faces, isCliEnabled = parse_args()
-
     setLogLevel('info')
     execute(template, testbed, experimentName, nPings, ctime, hr, faces, isCliEnabled)
