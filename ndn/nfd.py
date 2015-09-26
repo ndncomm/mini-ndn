@@ -31,7 +31,10 @@ class Nfd(NdnApplication):
     def __init__(self, node):
         NdnApplication.__init__(self, node)
 
-        self.logLevel = node.params["params"].get("nfd-log-level", "NONE")
+        try:
+            self.logLevel = node.params["params"]["nfd-log-level"]
+        except KeyError:
+            self.logLevel = "NONE"
 
         # Create home directory for a node
         node.cmd("cd /tmp && mkdir %s" % node.name)
