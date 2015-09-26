@@ -23,13 +23,30 @@
 
 from ndn.experiments.experiment import Experiment
 
+from mininet.clean import sh
+
 class IntegrationTests(Experiment):
 
     def __init__(self, args):
         Experiment.__init__(self, args)
 
     def setup(self):
-        pass
+        print "Creating SSH keys"
+
+        sh("rm -rf /tmp/ssh")
+        sh("mkdir /tmp/ssh")
+        sh("ssh-keygen -t rsa -P '' -f /tmp/ssh/id_rsa")
+        sh("cat /tmp/ssh/id_rsa.pub >> /tmp/ssh/authorized_keys")
+
+        cmd = "/usr/sbin/sshd"
+        opts = "-D -o AuthorizedKeysFile=/tmp/ssh/authorized_keys -o StrictModes=no"
+
+        for host in self.net.hosts:
+            # Run SSH daemon
+            host.cmd(cmd + " " + opts + "&")
+
+            # Use generated private key as default SSH identity
+            host.cmd("alias ssh=\"ssh -i /tmp/ssh/id_rsa\"")
 
     def run(self):
         pass
