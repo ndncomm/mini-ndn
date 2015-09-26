@@ -162,14 +162,11 @@ def parse_args():
     return file, testbed, experimentName, nPings, ctime, hr, faces, isCliEnabled
 
 class NdnTopo(Topo):
-    def __init__(self, conf_arq, **opts):
-        Topo.__init__(self, **opts)
-
-        self.hosts_conf = parse_hosts(conf_arq)
-        self.links_conf = parse_links(conf_arq)
-
+    def build(self, conf_arq):
         self.isTCLink = False
         self.isLimited = False
+        self.hosts_conf = parse_hosts(conf_arq)
+        self.links_conf = parse_links(conf_arq)
 
         for host in self.hosts_conf:
             if host.cpu != None and self.isLimited != True:
@@ -185,22 +182,26 @@ class NdnTopo(Topo):
 
         info('Parse of ' + conf_arq + ' done.\n')
 
+class IntegrationTestsTopo(Topo):
+    def build(self):
+        self.isTCLink = False
+        self.isLimited = False
+
 def execute(template_file='minindn.conf', testbed=False, experimentName=None, nPings=None, ctime=None, hr=False, faces=3, isCliEnabled=True):
     "Create a network based on template_file"
 
-    install_dir = '/usr/local/etc/mini-ndn/'
-
-    if template_file == '':
-        template_file = install_dir + 'default-topology.conf'
-
-    if testbed:
-        template_file = install_dir + 'minindn.testbed.conf'
-
-    if os.path.exists(template_file) == False:
-        info('No template file given and default template file cannot be found. Exiting...\n')
-        quit()
-
-    topo = NdnTopo(template_file)
+    if experimentName == 'integration-tests':
+        topo = IntegrationTestsTopo()
+    else:
+        install_dir = '/usr/local/etc/mini-ndn/'
+        if not template_file:
+            template_file = install_dir + 'default-topology.conf'
+        if testbed:
+            template_file = install_dir + 'minindn.testbed.conf'
+        if not os.path.exists(template_file):
+            info('No template file given and default template file cannot be found. Exiting...\n')
+            quit()
+        topo = NdnTopo(template_file)
 
     t = datetime.datetime.now()
 
@@ -235,30 +236,28 @@ def execute(template_file='minindn.conf', testbed=False, experimentName=None, nP
                 node2.setIP(ipStr(ipParse(ndnNetBase) + 2) + '/30', intf=link.intf2)
                 ndnNetBase = ipStr(ipParse(ndnNetBase) + 4)
 
-    nodes = ""    # Used later to check prefix name in checkFIB
+    if experimentName != 'integration-tests':
+        # NLSR initialization
+        for host in net.hosts:
+            conf = next(x for x in topo.hosts_conf if x.name == host.name)
+            host.nlsrParameters = conf.nlsrParameters
 
-    # NLSR initialization
-    for host in net.hosts:
-        nodes += str(host.name) + ","
+            if faces is not None:
+                host.nlsrParameters["max-faces-per-prefix"] = faces
 
-        conf = next(x for x in topo.hosts_conf if x.name == host.name)
-        host.nlsrParameters = conf.nlsrParameters
+            if hr:
+                host.nlsrParameters["hyperbolic-state"] = "on"
 
-        if faces is not None:
-            host.nlsrParameters["max-faces-per-prefix"] = faces
+            # Generate NLSR configuration file
+            configGenerator = NlsrConfigGenerator(host)
+            configGenerator.createConfigFile()
 
-        if hr:
-            host.nlsrParameters["hyperbolic-state"] = "on"
+            # Start NLSR
+            host.nlsr = Nlsr(host)
+            host.nlsr.start()
 
-        # Generate NLSR configuration file
-        configGenerator = NlsrConfigGenerator(host)
-        configGenerator.createConfigFile()
-
-        # Start NLSR
-        host.nlsr = Nlsr(host)
-        host.nlsr.start()
-
-    nodes = nodes[0:-1]
+    # Used later to check prefix name in checkFIB
+    nodes = ','.join([str(host.name) for host in net.hosts])
 
     for host in net.hosts:
         if 'app' in host.params:
