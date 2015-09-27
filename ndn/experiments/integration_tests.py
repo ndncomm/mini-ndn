@@ -36,12 +36,14 @@ class IntegrationTests(Experiment):
         print "Creating SSH keys"
 
         sh("mkdir -p /tmp/minindn")
+        sh("ssh-keygen -q -t rsa -N '' -f /tmp/minindn/ssh_host_rsa_key")
         sh("ssh-keygen -q -t rsa -N '' -f /tmp/minindn/id_rsa")
         sh("cat /tmp/minindn/id_rsa.pub > /tmp/minindn/authorized_keys")
 
         sshd_cmd = ['/usr/sbin/sshd',
                     '-q',
                     '-o AuthorizedKeysFile=/tmp/minindn/authorized_keys',
+                    '-o HostKey=/tmp/minindn/ssh_host_rsa_key',
                     '-o StrictModes=no']
         for host in self.net.hosts:
             # Run SSH daemon
