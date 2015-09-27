@@ -58,7 +58,7 @@ class IntegrationTests(Experiment):
             with open(ssh_wrapper, 'w') as f:
                 f.writelines([
                     '#!/bin/sh\n',
-                    'exec /usr/bin/ssh -i /tmp/minindn/id_rsa -o StrictHostKeyChecking=no "$@"\n'
+                    'exec /usr/bin/ssh -f -i /tmp/minindn/id_rsa -o StrictHostKeyChecking=no "$@"\n'
                 ])
             os.chmod(ssh_wrapper, 0755)
             host.cmd("export PATH=\"${HOME}/bin${PATH:+:}${PATH}\"")
@@ -73,5 +73,30 @@ class IntegrationTests(Experiment):
         for host in self.net.hosts:
             if host.name == "a":
                 host.cmd("cd integration-tests")
+
+                tests = [
+                    #"test_linkfail",
+                    #"test_hub_discovery",
+                    #"test_interest_loop",
+                    #"test_interest_aggregation",
+                    #"test_localhost_scope",
+                    #"test_multicast_strategy",
+                    #"test_multicast",
+                    #"test_tcp_udp_tunnel",
+                    #"test_localhop",
+                    "test_unixface",
+                    "test_ndnpeekpoke",
+                    "test_route_expiration",
+                    #"test_nfdc",
+                    "test_ndnping",
+                    "test_cs_freshness",
+                    "test_nrd",
+                    "test_fib_matching",
+                    #"test_remote_register",
+                    "test_ndntraffic"
+                ]
+
+                for test in tests:
+                    host.cmd("./run_tests.py %s" % test, verbose=True)
 
 Experiment.register("integration-tests", IntegrationTests)
