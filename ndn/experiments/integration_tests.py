@@ -47,6 +47,7 @@ class IntegrationTests(Experiment):
                     '-o AuthorizedKeysFile=/tmp/minindn/authorized_keys',
                     '-o HostKey=/tmp/minindn/ssh_host_rsa_key',
                     '-o StrictModes=no']
+
         for host in self.net.hosts:
             # Run SSH daemon
             host.cmd(sshd_cmd)
@@ -66,37 +67,36 @@ class IntegrationTests(Experiment):
             # Copy nfd configuration into default configuration location
             host.cmd("cp %s %s" % (host.nfd.confFile, "/usr/local/etc/ndn/nfd.conf"))
 
-            if host.name == "a":
-                sh("cp -r integration-tests /tmp/a")
+            if host.name == 'a':
+                sh("cp -r %s %s" % ("integration-tests", homedir))
 
     def run(self):
-        for host in self.net.hosts:
-            if host.name == "a":
-                host.cmd("cd integration-tests")
+        # Tests are supposed to be run from host a
+        a = self.net['a']
+        a.cmd("cd ~/integration-tests")
 
-                tests = [
-                    #"test_linkfail",
-                    #"test_hub_discovery",
-                    #"test_interest_loop",
-                    #"test_interest_aggregation",
-                    #"test_localhost_scope",
-                    #"test_multicast_strategy",
-                    #"test_multicast",
-                    #"test_tcp_udp_tunnel",
-                    #"test_localhop",
-                    "test_unixface",
-                    "test_ndnpeekpoke",
-                    "test_route_expiration",
-                    #"test_nfdc",
-                    "test_ndnping",
-                    "test_cs_freshness",
-                    "test_nrd",
-                    "test_fib_matching",
-                    #"test_remote_register",
-                    "test_ndntraffic"
-                ]
-
-                for test in tests:
-                    host.cmd("./run_tests.py %s" % test, verbose=True)
+        tests = [
+            #"test_linkfail",
+            #"test_hub_discovery",
+            #"test_interest_loop",
+            #"test_interest_aggregation",
+            #"test_localhost_scope",
+            #"test_multicast_strategy",
+            #"test_multicast",
+            #"test_tcp_udp_tunnel",
+            #"test_localhop",
+            "test_unixface",
+            "test_ndnpeekpoke",
+            "test_route_expiration",
+            #"test_nfdc",
+            "test_ndnping",
+            "test_cs_freshness",
+            "test_nrd",
+            "test_fib_matching",
+            #"test_remote_register",
+            "test_ndntraffic"
+        ]
+        for test in tests:
+            a.cmd("./run_tests.py", test, verbose=True)
 
 Experiment.register("integration-tests", IntegrationTests)
