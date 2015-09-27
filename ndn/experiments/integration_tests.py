@@ -36,7 +36,9 @@ class IntegrationTests(Experiment):
         print "Creating SSH keys"
 
         sh("mkdir -p /tmp/minindn")
+        sh("rm -f /tmp/minindn/ssh_host_rsa_key")
         sh("ssh-keygen -q -t rsa -N '' -f /tmp/minindn/ssh_host_rsa_key")
+        sh("rm -f /tmp/minindn/id_rsa")
         sh("ssh-keygen -q -t rsa -N '' -f /tmp/minindn/id_rsa")
         sh("cat /tmp/minindn/id_rsa.pub > /tmp/minindn/authorized_keys")
 
