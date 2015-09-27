@@ -192,12 +192,17 @@ class IntegrationTestsTopo(Topo):
             self.addHost(host)
 
         self.addSwitch('s1')
+        self.addSwitch('s2')
 
         self.addLink('a', 's1')
         self.addLink('b', 's1')
         self.addLink('c', 's1')
         self.addLink('r', 'a')
         self.addLink('r', 'd')
+
+        # HACK!
+        self.addLink('a', 's2')
+        self.addLink('d', 's2')
 
     @staticmethod
     def assignIpAddresses(net):
@@ -218,6 +223,10 @@ class IntegrationTestsTopo(Topo):
             elif node1.name == "r" and node2.name == "d":
                         node1.setIP("192.168.3.2/24", intf=link.intf1)
                         node2.setIP("192.168.3.3/24", intf=link.intf2)
+            elif node1.name == "a" and node2.name == "s2":
+                        node1.setIP("192.168.3.5/24", intf=link.intf1)
+            elif node1.name == "d" and node2.name == "s2":
+                        node1.setIP("192.168.3.3/24", intf=link.intf1)
 
 def execute(template_file='minindn.conf', testbed=False, experimentName=None,
             nPings=None, ctime=None, hr=False, faces=3, isCliEnabled=True):
