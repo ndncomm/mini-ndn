@@ -25,6 +25,8 @@ from ndn.experiments.experiment import Experiment
 
 from mininet.clean import sh
 
+import os
+
 class IntegrationTests(Experiment):
 
     def __init__(self, args):
@@ -43,8 +45,17 @@ class IntegrationTests(Experiment):
             # Run SSH daemon
             host.cmd("/usr/sbin/sshd " + sshd_opts)
 
-            # Use generated private key as default SSH identity
-            host.cmd("alias ssh='ssh -i /tmp/ssh/id_rsa -o StrictHostKeyChecking=no'")
+            # Create a wrapper script for ssh that uses the generated key as default SSH identity
+            host.cmd("mkdir -p ~/bin")
+            homedir = host.cmd("echo -n ${HOME}")
+            ssh_wrapper = homedir + '/bin/ssh'
+            with open(ssh_wrapper, 'w') as f:
+                f.writelines([
+                    '#!/bin/sh\n',
+                    'exec /usr/bin/ssh -i /tmp/ssh/id_rsa -o StrictHostKeyChecking=no "$@"\n'
+                ])
+            os.chmod(ssh_wrapper, 0755)
+            host.cmd("export PATH=\"${HOME}/bin${PATH:+:}${PATH}\"")
 
     def run(self):
         pass
