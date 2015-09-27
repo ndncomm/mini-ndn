@@ -171,7 +171,8 @@ class NdnTopo(Topo):
         for host in self.hosts_conf:
             if host.cpu != None and self.isLimited != True:
                 self.isLimited = True
-            self.addHost(host.name, app=host.app, params=host.uri_tuples, cpu=host.cpu,cores=host.cores,cache=host.cache)
+            self.addHost(host.name, app=host.app, params=host.uri_tuples,
+                         cpu=host.cpu, cores=host.cores, cache=host.cache)
 
         for link in self.links_conf:
             if len(link.linkDict) == 0:
@@ -187,7 +188,19 @@ class IntegrationTestsTopo(Topo):
         self.isTCLink = False
         self.isLimited = False
 
-def execute(template_file='minindn.conf', testbed=False, experimentName=None, nPings=None, ctime=None, hr=False, faces=3, isCliEnabled=True):
+        for host in ['a', 'b', 'c', 'd', 'r']:
+            self.addHost(host)
+
+        self.addSwitch('s1')
+
+        self.addLink('a', 's1')
+        self.addLink('b', 's1')
+        self.addLink('c', 's1')
+        self.addLink('r', 'a')
+        self.addLink('r', 'd')
+
+def execute(template_file='minindn.conf', testbed=False, experimentName=None,
+            nPings=None, ctime=None, hr=False, faces=3, isCliEnabled=True):
     "Create a network based on template_file"
 
     if experimentName == 'integration-tests':
