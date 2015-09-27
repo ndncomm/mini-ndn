@@ -70,6 +70,13 @@ class IntegrationTests(Experiment):
             if host.name == 'a':
                 sh("cp -r %s %s" % ("integration-tests", homedir))
 
+        # Setup static routes between a and d
+        self.net['a'].cmd("ip route add 192.168.3.0/24 via 192.168.2.3")
+        self.net['d'].cmd("ip route add 192.168.2.0/24 via 192.168.3.2")
+
+        # Enable IP forwarding on r
+        self.net['r'].cmd("sysctl net.ipv4.ip_forward=1")
+
     def run(self):
         # Tests are supposed to be run from host a
         a = self.net['a']
