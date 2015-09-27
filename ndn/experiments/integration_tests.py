@@ -35,15 +35,17 @@ class IntegrationTests(Experiment):
     def setup(self):
         print "Creating SSH keys"
 
-        sh("rm -rf /tmp/ssh")
-        sh("mkdir -p /tmp/ssh")
-        sh("ssh-keygen -q -t rsa -N '' -f /tmp/ssh/id_rsa")
-        sh("cat /tmp/ssh/id_rsa.pub >> /tmp/ssh/authorized_keys")
+        sh("mkdir -p /tmp/minindn")
+        sh("ssh-keygen -q -t rsa -N '' -f /tmp/minindn/id_rsa")
+        sh("cat /tmp/minindn/id_rsa.pub > /tmp/minindn/authorized_keys")
 
-        sshd_opts = "-q -o AuthorizedKeysFile=/tmp/ssh/authorized_keys -o StrictModes=no"
+        sshd_cmd = ['/usr/sbin/sshd',
+                    '-q',
+                    '-o AuthorizedKeysFile=/tmp/minindn/authorized_keys',
+                    '-o StrictModes=no']
         for host in self.net.hosts:
             # Run SSH daemon
-            host.cmd("/usr/sbin/sshd " + sshd_opts)
+            host.cmd(sshd_cmd)
 
             # Create a wrapper script for ssh that uses the generated key as default SSH identity
             host.cmd("mkdir -p ~/bin")
@@ -52,7 +54,7 @@ class IntegrationTests(Experiment):
             with open(ssh_wrapper, 'w') as f:
                 f.writelines([
                     '#!/bin/sh\n',
-                    'exec /usr/bin/ssh -i /tmp/ssh/id_rsa -o StrictHostKeyChecking=no "$@"\n'
+                    'exec /usr/bin/ssh -i /tmp/minindn/id_rsa -o StrictHostKeyChecking=no "$@"\n'
                 ])
             os.chmod(ssh_wrapper, 0755)
             host.cmd("export PATH=\"${HOME}/bin${PATH:+:}${PATH}\"")
