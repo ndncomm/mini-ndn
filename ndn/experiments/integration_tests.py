@@ -34,19 +34,17 @@ class IntegrationTests(Experiment):
         print "Creating SSH keys"
 
         sh("rm -rf /tmp/ssh")
-        sh("mkdir /tmp/ssh")
-        sh("ssh-keygen -t rsa -P '' -f /tmp/ssh/id_rsa")
+        sh("mkdir -p /tmp/ssh")
+        sh("ssh-keygen -q -t rsa -N '' -f /tmp/ssh/id_rsa")
         sh("cat /tmp/ssh/id_rsa.pub >> /tmp/ssh/authorized_keys")
 
-        cmd = "/usr/sbin/sshd"
-        opts = "-D -o AuthorizedKeysFile=/tmp/ssh/authorized_keys -o StrictModes=no"
-
+        sshd_opts = "-q -o AuthorizedKeysFile=/tmp/ssh/authorized_keys -o StrictModes=no"
         for host in self.net.hosts:
             # Run SSH daemon
-            host.cmd(cmd + " " + opts + "&")
+            host.cmd("/usr/sbin/sshd " + sshd_opts)
 
             # Use generated private key as default SSH identity
-            host.cmd("alias ssh=\"ssh -i /tmp/ssh/id_rsa\"")
+            host.cmd("alias ssh='ssh -i /tmp/ssh/id_rsa -o StrictHostKeyChecking=no'")
 
     def run(self):
         pass
