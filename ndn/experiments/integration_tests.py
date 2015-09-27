@@ -61,7 +61,15 @@ class IntegrationTests(Experiment):
             os.chmod(ssh_wrapper, 0755)
             host.cmd("export PATH=\"${HOME}/bin${PATH:+:}${PATH}\"")
 
+            # Copy nfd configuration into default configuration location
+            host.cmd("cp %s %s" % (host.nfd.confFile, "/usr/local/etc/ndn/nfd.conf"))
+
+            if host.name == "a":
+                sh("cp -r integration-tests /tmp/a")
+
     def run(self):
-        pass
+        for host in self.net.hosts:
+            if host.name == "a":
+                host.cmd("cd integration-tests")
 
 Experiment.register("integration-tests", IntegrationTests)

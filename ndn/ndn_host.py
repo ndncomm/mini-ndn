@@ -88,6 +88,8 @@ class NdnHost(Host, NdnHostCommon):
     "NDNHost is a Host that always runs NFD"
 
     def __init__(self, name, **kwargs):
+        privateDirs = [('/usr/local/etc/ndn', '/tmp/%(name)s/usr/local/etc/ndn'),  ]
+        kwargs['privateDirs'] = privateDirs
 
         Host.__init__(self, name, **kwargs)
         if not NdnHost.inited:
