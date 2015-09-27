@@ -199,6 +199,26 @@ class IntegrationTestsTopo(Topo):
         self.addLink('r', 'a')
         self.addLink('r', 'd')
 
+    @staticmethod
+    def assignIpAddresses(net):
+        ndnNetBase = "192.168.1.1"
+
+        for link in net.links:
+            node1, node2 = link.intf1.node, link.intf2.node
+            print "Node1: " + node1.name + " Node2: " + node2.name
+            if node1.name == "a" and node2.name == "s1":
+                        node1.setIP("192.168.1.3/24", intf=link.intf1)
+            elif node1.name == "b" and node2.name == "s1":
+                        node1.setIP("192.168.1.2/24", intf=link.intf1)
+            elif node1.name == "c" and node2.name == "s1":
+                        node1.setIP("192.168.1.4/24", intf=link.intf1)
+            elif node1.name == "r" and node2.name == "a":
+                        node1.setIP("192.168.2.3/24", intf=link.intf1)
+                        node2.setIP("192.168.2.2/24", intf=link.intf2)
+            elif node1.name == "r" and node2.name == "d":
+                        node1.setIP("192.168.3.2/24", intf=link.intf1)
+                        node2.setIP("192.168.3.3/24", intf=link.intf2)
+
 def execute(template_file='minindn.conf', testbed=False, experimentName=None,
             nPings=None, ctime=None, hr=False, faces=3, isCliEnabled=True):
     "Create a network based on template_file"
@@ -238,16 +258,23 @@ def execute(template_file='minindn.conf', testbed=False, experimentName=None,
     # to insert a switch between each pair of neighbors
     ndnNetBase = "1.0.0.0"
     interfaces = []
-    for host in net.hosts:
-        for intf in host.intfList():
-            link = intf.link
-            node1, node2 = link.intf1.node, link.intf2.node
-            if link.intf1 not in interfaces and link.intf2 not in interfaces:
-                interfaces.append(link.intf1)
-                interfaces.append(link.intf2)
-                node1.setIP(ipStr(ipParse(ndnNetBase) + 1) + '/30', intf=link.intf1)
-                node2.setIP(ipStr(ipParse(ndnNetBase) + 2) + '/30', intf=link.intf2)
-                ndnNetBase = ipStr(ipParse(ndnNetBase) + 4)
+
+    if experimentName == 'integration-tests':
+        IntegrationTestsTopo.assignIpAddresses(net)
+    else:
+        for host in net.hosts:
+            for intf in host.intfList():
+                link = intf.link
+                node1, node2 = link.intf1.node, link.intf2.node
+                if link.intf1 not in interfaces and link.intf2 not in interfaces:
+                    interfaces.append(link.intf1)
+                    interfaces.append(link.intf2)
+
+                    print "Node1: " + node1.name
+                    print "Node2: " + node2.name
+                    node1.setIP(ipStr(ipParse(ndnNetBase) + 1) + '/24', intf=link.intf1)
+                    node2.setIP(ipStr(ipParse(ndnNetBase) + 2) + '/24', intf=link.intf2)
+                    ndnNetBase = ipStr(ipParse(ndnNetBase) + 2)
 
     if experimentName != 'integration-tests':
         # NLSR initialization
