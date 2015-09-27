@@ -53,33 +53,32 @@
 <h3>
 <a id="status" class="anchor" href="#status" aria-hidden="true"><span class="octicon octicon-link"></span></a>Status</h3>
 
-<p>Tests that currently fail:<br />
-<br />
+<p>Tests that currently fail:
 <strong>test_linkfail</strong>
-<ul><li>2 Failures: multicast and ncc</li></ul>
+-2 Failures: multicast and ncc
 <strong>test_hub_discovery</strong>
-<ul><li>Passes but I don’t think it should; a lot of error message show up</li></ul>
+-Passes but I don’t think it should; a lot of error message show up
 <strong>test_interest_loop</strong>
-<ul>
-<li>cp: cannot stat ‘/usr/local/etc/ndn/keys’: No such file or directory</li>
-<li>ERROR: error while connecting to the forwarder (No such file or directory)</li>
-</ul>
+-cp: cannot stat ‘/usr/local/etc/ndn/keys’: No such file or directory
+-ERROR: error while connecting to the forwarder (No such file or directory)
 <strong>test_localhost_scope</strong>
-<ul><li>Asks for login info</li></ul>
+-Asks for login info
 <strong>test_multicast_strategy</strong>
-<ul><li>Asks for login info</li></ul>
+-Asks for login info
 <strong>test_multicast</strong>
-<ul><li>nfd-status command does not run</li></ul>
+-nfd-status command does not run
 <strong>test_tcp_udp_tunnel</strong>
-<ul><li>A can’t create Face to D; no route</li></ul>
+-A can’t create Face to D; no route
 <strong>test_localhop</strong>
-<ul><li>Error while connecting to the forwarder</li></ul>
+-Error while connecting to the forwarder
 <strong>test_nfdc</strong>
-<ul><li>1 failure due to IPv6 face creation</li></ul>
+-1 failure due to IPv6 face creation
 <strong>test_remote_register</strong>
-<ul><li>Asks for login info</li></ul></p>
+-Asks for login info</p>
 
-<p>The optimizations have reduced the running time of the Vagrant environment significantly. Instead of taking three or four hours, the integration tests now take just under an hour and a half to run.</p>
+<h2></h2>
+
+<p>The optimizations to the Vagrant environment have reduced the run time significantly. Instead of taking three or four hours, the integration tests now take just under an hour and a half to run.</p>
 
 <h3>
 <a id="todos" class="anchor" href="#todos" aria-hidden="true"><span class="octicon octicon-link"></span></a>TODOs</h3>
@@ -101,7 +100,7 @@
       </footer>
     </div>
 
-
+    
 
   </body>
 </html>
