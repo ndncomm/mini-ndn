@@ -58,8 +58,9 @@
 #   advertising or publicity pertaining to the Software or any derivatives
 #   without specific, written prior permission.
 
-from mininet.topo import Topo
 from mininet.net import Mininet
+from mininet.topo import Topo
+from mininet.nodelib import LinuxBridge
 from mininet.log import setLogLevel, output, info
 from mininet.cli import CLI
 from mininet.link import TCLink
@@ -238,7 +239,9 @@ def execute(template_file='minindn.conf', testbed=False, experimentName=None,
 
     t = datetime.datetime.now()
 
-    if topo.isTCLink == True and topo.isLimited == True:
+    if experimentName == 'integration-tests':
+        net = Mininet(topo,switch=LinuxBridge,host=NdnHost)
+    elif topo.isTCLink == True and topo.isLimited == True:
         net = Mininet(topo,host=CpuLimitedNdnHost,link=TCLink)
     elif topo.isTCLink == True and topo.isLimited == False:
         net = Mininet(topo,host=NdnHost,link=TCLink)
