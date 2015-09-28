@@ -70,11 +70,8 @@ from ndn import ExperimentManager
 from ndn.ndn_host import NdnHost, CpuLimitedNdnHost
 from ndn.conf_parser import parse_hosts, parse_links
 
-import os.path, time
+import os, sys, time
 import optparse
-import datetime
-from os.path import expanduser
-import sys
 
 from ndn.nlsr import Nlsr, NlsrConfigGenerator
 from ndn.nfd import Nfd
@@ -237,7 +234,7 @@ def execute(template_file='minindn.conf', testbed=False, experimentName=None,
             quit()
         topo = NdnTopo(template_file)
 
-    t = datetime.datetime.now()
+    t = time.time()
 
     if experimentName == 'integration-tests':
         net = Mininet(topo,switch=LinuxBridge,host=NdnHost)
@@ -250,9 +247,8 @@ def execute(template_file='minindn.conf', testbed=False, experimentName=None,
     else:
         net = Mininet(topo,host=NdnHost)
 
-    t2 = datetime.datetime.now()
-    delta = t2 - t
-    info('Setup time: ' + str(delta.seconds) + '\n')
+    delta = time.time() - t
+    info('Setup time: ' + str(delta) + ' seconds\n')
 
     net.start()
 
