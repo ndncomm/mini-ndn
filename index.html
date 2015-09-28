@@ -50,6 +50,17 @@
 
 <p>Eric worked to optimize the Vagrant tests for comparison against the Mini-NDN infrastructure. This was accomplished by eliminating the bottleneck of installing Boost and the NDN libraries and packages four separate times. Now, these steps are executed once on a template VM. This is then cloned for each of the four NDN nodes in the testing environment.</p>
 
+<h3>
+<a id="tasks" class="anchor" href="#tasks" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tasks</h3>
+
+<ul>
+<li>Run sshd on each node</li>
+<li>Be able to ssh from node A to every other node</li>
+<li>Create topology file or hard code topology for integration tests</li>
+<li>Determine which tests pass and which tests fail</li>
+<li>Work towards 100% test success rate</li>
+</ul>
+
 <h2>
 <a id="results" class="anchor" href="#results" aria-hidden="true"><span class="octicon octicon-link"></span></a>Results</h2>
 
